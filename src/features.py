@@ -1,7 +1,7 @@
 """
 Feature engineering
 
-Computes ML-ready features from raw match data. For Amelie and Mark to call
+Computes ML ready features from raw match data. For Amelie and Mark to call
 build_training_features() and get a clean DataFrame ready for model training.
 
 FEATURES
