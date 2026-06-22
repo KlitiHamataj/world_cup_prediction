@@ -1,0 +1,19 @@
+# Environment
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Data (seed from Kaggle, don't commit large files)
+data/football.db
+data/raw/*.csv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
