@@ -363,3 +363,33 @@ def build_prediction_features(home_team: str, away_team: str,
         "away_days_rest": away_rest,
         "is_world_cup": 1,
     }
+
+
+def compute_odds_features(home_team: str, away_team: str, match_date: str) -> dict:
+    """Convert betting odds to implied probabilities."""
+    with get_db() as conn:
+        odds = pd.read_sql_query(
+            "SELECT home_win, draw, away_win FROM odds "
+            "WHERE home_team = ? AND away_team = ? AND match_date = ?",
+            conn, params=(home_team, away_team, match_date),
+        )
+
+    if odds.empty:
+        return {
+            "odds_home_prob": None,
+            "odds_draw_prob": None,
+            "odds_away_prob": None,
+            "odds_spread": None,
+        }
+
+    # Convert decimal odds to implied probability
+    odds["home_prob"] = 1 / odds["home_win"]
+    odds["draw_prob"] = 1 / odds["draw"]
+    odds["away_prob"] = 1 / odds["away_win"]
+
+    return {
+        "odds_home_prob": odds["home_prob"].mean(),
+        "odds_draw_prob": odds["draw_prob"].mean(),
+        "odds_away_prob": odds["away_prob"].mean(),
+        "odds_spread": odds["home_prob"].max() - odds["home_prob"].min(),
+    }
