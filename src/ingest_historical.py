@@ -26,7 +26,7 @@ def ingest_international_results() -> int:
     """results.csv into matches_historical"""
     path = RAW_DIR / "results.csv"
     if not path.exists():
-        print("  ✗ results.csv not found")
+        print("results.csv not found")
         return 0
 
     print(f"\n Dataset 1: {path.name}")
@@ -41,13 +41,13 @@ def ingest_international_results() -> int:
     df["neutral"] = df["neutral"].map({True: 1, False: 0, "TRUE": 1, "FALSE": 0}).fillna(0).astype(int)
 
     normalize_all_team_columns(df)
-    print(f"  Loaded {len(df):,} matches")
+    print(f"Loaded {len(df):,} matches")
 
     with get_db() as conn:
         n = upsert_matches_historical(conn, df)
         log_pipeline_run(conn, "ingest_results_csv", "SUCCESS", n, path.name)
 
-    print(f"  ✓ Inserted {n:,} rows into matches_historical")
+    print(f"Inserted {n:,} rows into matches_historical")
     return n
 
 
@@ -55,7 +55,7 @@ def ingest_wc2026_fixtures() -> int:
     """wc_2026_fixtures.csv into matches_wc2026"""
     path = RAW_DIR / "wc_2026_fixtures.csv"
     if not path.exists():
-        print("  ✗ wc_2026_fixtures.csv not found")
+        print("wc_2026_fixtures.csv not found")
         return 0
 
     print(f"\n Dataset 2a: {path.name}")
@@ -83,7 +83,7 @@ def ingest_wc2026_fixtures() -> int:
 
         log_pipeline_run(conn, "ingest_wc2026_fixtures", "SUCCESS", count, path.name)
 
-    print(f"  ✓ Loaded {count} fixtures into matches_wc2026")
+    print(f"Loaded {count} fixtures into matches_wc2026")
     return count
 
 
@@ -111,7 +111,7 @@ def ingest_wc2026_teams() -> int:
 
         log_pipeline_run(conn, "ingest_wc2026_teams", "SUCCESS", count, path.name)
 
-    print(f"  ✓ Loaded {count} teams")
+    print(f"Loaded {count} teams")
     return count
 
 
@@ -150,7 +150,7 @@ def ingest_elo_ratings() -> int:
 
         log_pipeline_run(conn, "ingest_elo_ratings", "SUCCESS", count, path.name)
 
-    print(f"  ✓ Patched Elo ratings for {count} teams")
+    print(f" Patched Elo ratings for {count} teams")
     return count
 
 
@@ -195,7 +195,7 @@ def ingest_squad_data() -> int:
         log_pipeline_run(conn, "ingest_squad_data", "SUCCESS", count,
                          ", ".join(p.name for p in files))
 
-    print(f"  ✓ Patched squad data for {count} teams")
+    print(f"Patched squad data for {count} teams")
     return count
 
 
@@ -208,11 +208,11 @@ def ingest_all():
     print("=" * 60)
     print("Kaggle Data Ingestion")
     print("=" * 60)
-    print(f"\nLooking for CSVs in: {RAW_DIR}/")
+    print(f"\n Looking for CSVs in: {RAW_DIR}/")
 
     csvs = sorted(RAW_DIR.glob("*.csv"))
     if not csvs:
-        print("\n✗ No CSV files found in data/raw/")
+        print("\n No CSV files found in data/raw/")
         return
 
     print(f"Found {len(csvs)} CSV(s):")
@@ -245,10 +245,10 @@ def ingest_all():
         teams_with_squad = conn.execute(
             "SELECT COUNT(*) FROM teams WHERE squad_avg_age IS NOT NULL OR market_value IS NOT NULL"
         ).fetchone()[0]
-        print(f"\n  Teams with Elo ratings:  {teams_with_elo}/{total_teams}")
-        print(f"  Teams with squad data:   {teams_with_squad}/{total_teams}")
+        print(f"Teams with Elo ratings:  {teams_with_elo}/{total_teams}")
+        print(f"Teams with squad data:   {teams_with_squad}/{total_teams}")
 
-    print(f"\n✓ Database ready at data/football.db")
+    print(f"\n Database ready at data/football.db")
 
 
 if __name__ == "__main__":
