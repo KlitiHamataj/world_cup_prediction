@@ -30,6 +30,13 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Create .env from secrets
+      - name: Debug secrets
+        run: |
+          echo "Football key length: ${#FOOTBALL_KEY}"
+          echo "Odds key length: ${#ODDS_KEY}"
+        env:
+          FOOTBALL_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
+          ODDS_KEY: ${{ secrets.ODDS_API_KEY }}
         run: |
           echo "FOOTBALL_DATA_API_KEY=${{ secrets.FOOTBALL_DATA_API_KEY }}" > .env
           echo "ODDS_API_KEY=${{ secrets.ODDS_API_KEY }}" >> .env
