@@ -2,8 +2,9 @@ name: Update Match Data
 
 on:
   schedule:
-    # Every hour during the World Cup — adjust as needed
-    - cron: '0 * * * *'
+    # Twice a day: 6am and 6pm UTC
+    - cron: '0 6 * * *'
+    - cron: '0 18 * * *'
 
   # Also allow manual trigger from GitHub UI
   workflow_dispatch:
@@ -14,6 +15,7 @@ permissions:
 jobs:
   run-pipeline:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repo
@@ -32,13 +34,25 @@ jobs:
           echo "FOOTBALL_DATA_API_KEY=${{ secrets.FOOTBALL_DATA_API_KEY }}" > .env
           echo "ODDS_API_KEY=${{ secrets.ODDS_API_KEY }}" >> .env
 
+      - name: Build database from Kaggle data
+        run: python -m src.ingest_historical
+
       - name: Run pipeline
         run: python -m src.pipeline --all
 
-      - name: Commit updated database
+      - name: Rebuild training features CSV
+        run: |
+          python -c "
+          from src.features import build_training_features
+          df = build_training_features()
+          df.to_csv('data/training_features.csv', index=False)
+          print(f'Saved {len(df)} rows to training_features.csv')
+          "
+
+      - name: Commit updated training data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f data/football.db
-          git commit -m "Auto-update: $(date -u '+%Y-%m-%d %H:%M UTC')" || echo "No changes to commit"
+          git add -f data/training_features.csv
+          git commit -m "Auto-update training data: $(date -u '+%Y-%m-%d %H:%M UTC')" || echo "No changes to commit"
           git push
