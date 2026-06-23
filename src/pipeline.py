@@ -212,7 +212,7 @@ def promote_wc_results() -> int:
         log_pipeline_run(conn, "promote_wc_results", "SUCCESS", count,
                          f"{count} WC matches added to historical")
 
-    logger.info(f"Promoted {count} WC2026 results to matches_historical")
+    logger.info(f"statusPromoted {count} WC2026 results to matches_historical")
     return count
 
 

@@ -6,7 +6,8 @@ __pycache__/
 *.pyc
 
 # Data
-/data
+/data/raw
+/data/training_features.csv
 
 # IDE
 .vscode/
