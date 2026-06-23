@@ -1,5 +1,5 @@
 """
-Day 3 — Scheduler.
+Scheduler.
 
 Runs pipeline jobs on a timer using APScheduler.
 
@@ -94,8 +94,8 @@ def _create_scheduler() -> BackgroundScheduler:
     )
 
     # --- Job 6: Model retraining (daily at 4am UTC) ---
-    # This calls the DS's retrain script if it exists.
-    # Uncomment once the DS has model.py ready:
+    # This calls the retrain script if it exists.
+    # Uncomment once the model.py is ready:
     #
     # scheduler.add_job(
     #     _retrain_model,
@@ -111,13 +111,13 @@ def _create_scheduler() -> BackgroundScheduler:
 
 def _retrain_model():
     """
-    Wrapper for model retraining. The DS owns src/model.py;
-    this just calls their retrain function.
+    Wrapper for model retraining
+    this just calls the retrain function.
     """
     try:
         from src.model import retrain
         retrain()
-        logger.info("✓ Model retrained successfully")
+        logger.info("Model retrained successfully")
     except ImportError:
         logger.warning("src.model.retrain not found — DS hasn't built it yet")
     except Exception as e:
@@ -144,7 +144,7 @@ def start_scheduler_thread() -> BackgroundScheduler:
 
     _scheduler_instance = _create_scheduler()
     _scheduler_instance.start()
-    logger.info("✓ Scheduler started in background thread")
+    logger.info("Scheduler started in background thread")
     return _scheduler_instance
 
 
