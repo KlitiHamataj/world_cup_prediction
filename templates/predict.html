@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="intro">
+  <h2>Predict a match</h2>
+  <p>Pick two teams and get the model's probabilities for a home win, a draw, or an away win.<br>
+     Tick <em>neutral venue</em> for a tournament-style match with no home advantage.</p>
+</section>
+
+<form class="predict-form" method="get" action="{{ url_for('predict') }}">
+  <input type="hidden" name="seed" value="{{ seed }}">
+  <div class="pick">
+    <label>Home / Team 1
+      <select name="team1">
+        <option value="">— select —</option>
+        {% for t in teams %}<option value="{{ t }}" {{ 'selected' if t == team1 else '' }}>{{ t }}</option>{% endfor %}
+      </select>
+    </label>
+    <span class="vs">vs</span>
+    <label>Away / Team 2
+      <select name="team2">
+        <option value="">— select —</option>
+        {% for t in teams %}<option value="{{ t }}" {{ 'selected' if t == team2 else '' }}>{{ t }}</option>{% endfor %}
+      </select>
+    </label>
+  </div>
+  <label class="neutral-check">
+    <input type="checkbox" name="neutral" {{ 'checked' if neutral else '' }}> Neutral venue
+  </label>
+  <button type="submit">Predict</button>
+</form>
+
+{% if error %}<p class="form-error">{{ error }}</p>{% endif %}
+
+{% if result %}
+<div class="result-card">
+  <div class="result-head">
+    <span class="rt">{{ flag(result.team1) }} {{ result.team1 }}</span>
+    <span class="rsep">vs</span>
+    <span class="rt">{{ flag(result.team2) }} {{ result.team2 }}</span>
+    {% if result.neutral %}<span class="tag">neutral venue</span>{% endif %}
+  </div>
+
+  <div class="result-bars">
+    <div class="rb">
+      <div class="rb-top"><span>{{ flag(result.team1) }} {{ result.team1 }} win</span><span class="rb-val">{{ (result.p_home*100)|round|int }}%</span></div>
+      <div class="track"><span class="fill home" style="width: {{ (result.p_home*100)|round(1) }}%"></span></div>
+    </div>
+    <div class="rb">
+      <div class="rb-top"><span>Draw</span><span class="rb-val">{{ (result.p_draw*100)|round|int }}%</span></div>
+      <div class="track"><span class="fill draw" style="width: {{ (result.p_draw*100)|round(1) }}%"></span></div>
+    </div>
+    <div class="rb">
+      <div class="rb-top"><span>{{ flag(result.team2) }} {{ result.team2 }} win</span><span class="rb-val">{{ (result.p_away*100)|round|int }}%</span></div>
+      <div class="track"><span class="fill away" style="width: {{ (result.p_away*100)|round(1) }}%"></span></div>
+    </div>
+  </div>
+
+  <p class="verdict">Most likely: <strong>{{ result.verdict }}</strong></p>
+</div>
+{% endif %}
+{% endblock %}

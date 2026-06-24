@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="intro">
+  <h2>Group stage</h2>
+  <p>Teams ranked by <strong>expected points</strong> (xPts = 3·P(win) + 1·P(draw)).<br>
+     Top 2 of each group qualify, plus the 8 best third-placed teams.</p>
+  <div class="legend">
+    <span><i class="dot home"></i> team 1 win</span>
+    <span><i class="dot draw"></i> draw</span>
+    <span><i class="dot away"></i> team 2 win</span>
+  </div>
+</section>
+
+<div class="group-grid">
+  {% for g in groups %}
+  <div class="group-card">
+    <div class="group-head">Group {{ g.name }}</div>
+
+    <table class="standings">
+      <thead>
+        <tr><th>#</th><th>Team</th><th>xPts</th></tr>
+      </thead>
+      <tbody>
+        {% for row in g.standings %}
+        <tr class="{{ 'qualified' if row.qualified else '' }}">
+          <td class="pos">{{ row.position }}</td>
+          <td>{{ flag(row.team) }} {{ row.team }}</td>
+          <td class="xpts">{{ '%.2f'|format(row.xpts) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="matches">
+      {% for m in g.matches %}
+      <div class="match-mini">
+        <div class="teams">
+          <span class="t1">{{ flag(m.team1) }} {{ m.team1 }}</span>
+          <span class="t2">{{ flag(m.team2) }} {{ m.team2 }}</span>
+        </div>
+        <div class="bar">
+          <span class="seg home" style="width: {{ (m.p_home*100)|round(0,'floor') }}%"></span>
+          <span class="seg draw" style="width: {{ (m.p_draw*100)|round(0,'floor') }}%"></span>
+          <span class="seg away" style="width: {{ (m.p_away*100)|round(0,'floor') }}%"></span>
+        </div>
+        <div class="pcts">
+          <span>{{ (m.p_home*100)|round|int }}%</span>
+          <span>{{ (m.p_draw*100)|round|int }}%</span>
+          <span>{{ (m.p_away*100)|round|int }}%</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<section class="thirds">
+  <h2>Best third-placed teams</h2>
+  <table class="thirds-table">
+    <thead>
+      <tr><th>Rank</th><th>Team</th><th>Group</th><th>xPts</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for row in best_thirds %}
+      <tr class="{{ 'qualified' if row.qualified else 'out' }}">
+        <td>{{ row.rank }}</td>
+        <td>{{ flag(row.team) }} {{ row.team }}</td>
+        <td>{{ row.group }}</td>
+        <td>{{ '%.2f'|format(row.xpts) }}</td>
+        <td>{{ 'Qualified' if row.qualified else 'Out' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

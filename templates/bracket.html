@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% macro match_card(m, half, ri, idx) %}
+<div class="ko-match" id="{{ half }}-{{ ri }}-{{ idx }}" data-half="{{ half }}" data-round="{{ ri }}" data-idx="{{ idx }}">
+  {% if m.coin_flip %}<span class="flip">COIN FLIP</span>{% endif %}
+  <div class="team {{ 'win' if m.winner == m.team1 else 'lose' }}">
+    <span class="nm">{{ flag(m.team1) }} {{ m.team1 }}</span><span class="pc">{{ (m.p_home*100)|round|int }}%</span>
+  </div>
+  <div class="team {{ 'win' if m.winner == m.team2 else 'lose' }}">
+    <span class="nm">{{ flag(m.team2) }} {{ m.team2 }}</span><span class="pc">{{ (m.p_away*100)|round|int }}%</span>
+  </div>
+</div>
+{% endmacro %}
+
+{% block content %}
+<section class="intro">
+  <h2>Knockout bracket</h2>
+  <p>A knockout tie can't end in a draw: when <strong>draw</strong> is the most likely result,
+     the winner is decided by a coin flip slightly biased toward the favourite
+     (bias {{ (coin_bias*100)|round|int }}%, look for the <span class="flip-inline">COIN FLIP</span> badge).</p>
+</section>
+
+<div class="bracket-wrap">
+  <svg class="connectors" aria-hidden="true"></svg>
+  <div class="bracket">
+
+    {% for col in left_cols %}
+    <div class="round">
+      <div class="round-title">{{ col.name }}</div>
+      {% for m in col.matches %}{{ match_card(m, 'L', col.ri, loop.index0) }}{% endfor %}
+    </div>
+    {% endfor %}
+
+    <div class="round center-col">
+      <div class="champ-wrap">
+        <div class="ko-match champion-card" id="champion">
+          <span class="trophy">🏆</span>
+          <span class="champ-name">{{ flag(champion) }} {{ champion }}</span>
+        </div>
+        <div class="round-title final-title">Final</div>
+        {% if final_match %}{{ match_card(final_match, 'F', 4, 0) }}{% endif %}
+      </div>
+    </div>
+
+    {% for col in right_cols %}
+    <div class="round">
+      <div class="round-title">{{ col.name }}</div>
+      {% for m in col.matches %}{{ match_card(m, 'R', col.ri, loop.index0) }}{% endfor %}
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+
+{% if third_match %}
+<section class="third-place">
+  <h2>Third-place match</h2>
+  <div class="ko-match standalone">
+    {% if third_match.coin_flip %}<span class="flip">COIN FLIP</span>{% endif %}
+    <div class="team {{ 'win' if third_match.winner == third_match.team1 else 'lose' }}">
+      <span class="nm">{{ flag(third_match.team1) }} {{ third_match.team1 }}</span><span class="pc">{{ (third_match.p_home*100)|round|int }}%</span>
+    </div>
+    <div class="team {{ 'win' if third_match.winner == third_match.team2 else 'lose' }}">
+      <span class="nm">{{ flag(third_match.team2) }} {{ third_match.team2 }}</span><span class="pc">{{ (third_match.p_away*100)|round|int }}%</span>
+    </div>
+  </div>
+  <p class="bronze">Third place: <strong>{{ flag(third_place) }} {{ third_place }}</strong></p>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='bracket.js') }}"></script>
+{% endblock %}
