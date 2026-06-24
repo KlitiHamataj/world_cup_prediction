@@ -2,9 +2,11 @@
 .env
 .venv/
 venv/
-anaconda_projects
 __pycache__/
 *.pyc
+
+# Data
+data/football.db
 
 # IDE
 .vscode/
@@ -14,7 +16,3 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
-
-# Notebooks
-.ipynb_checkpoints
-feature_engineering.ipynb
