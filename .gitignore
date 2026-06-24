@@ -16,3 +16,4 @@ data/football.db
 # OS
 .DS_Store
 Thumbs.db
+src/notebooks/feature_engineering.ipynb
