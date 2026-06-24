@@ -7,7 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from xgboost import XGBClassifier
+from sklearn.ensemble import RandomForestClassifier
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 DATA_DIR    = Path(__file__).resolve().parent.parent / "data" / "raw"
@@ -180,23 +180,18 @@ def build_2026_data(df_results: pd.DataFrame,
 # ── MODEL ─────────────────────────────────────────────────────────────────────
 def train_and_predict(training_df: pd.DataFrame,
                       df_2026: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-    neg = (training_df["is_top_3"] == 0).sum()
-    pos = (training_df["is_top_3"] == 1).sum()
-
-    model = XGBClassifier(
-        n_estimators     = 500,
-        max_depth        = 4,
-        learning_rate    = 0.05,
-        subsample        = 0.8,
-        colsample_bytree = 0.8,
-        min_child_weight = 3,
-        reg_alpha        = 0.1,
-        reg_lambda       = 1.0,
-        scale_pos_weight = neg / pos,
-        eval_metric      = "logloss",
-        random_state     = 42,
-        verbosity        = 0,
+    
+    # XGBoost's scale_pos_weight is replaced by class_weight="balanced"
+    model = RandomForestClassifier(
+        n_estimators=200,
+        max_depth=5,
+        min_samples_split=10,
+        min_samples_leaf=4,
+        class_weight="balanced",
+        random_state=42,
+        n_jobs=-1
     )
+    
     model.fit(training_df[FEATURES], training_df["is_top_3"])
 
     importance = (
