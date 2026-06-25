@@ -4,8 +4,8 @@ World Cup 2026 — Final Ensemble Predictor with Betting Odds (who_wins.py)
 
 import pandas as pd
 
-from leaders import run_pipeline as get_leaders_results
-from winner_profile import run_pipeline as get_profiles_results
+from src.leaders import run_pipeline as get_leaders_results
+from src.winner_profile import run_pipeline as get_profiles_results
 
 # ── WEIGHTS ───────────────────────────────────────────────────────────────────
 WEIGHT_LEADERS = 0.55
