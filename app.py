@@ -7,13 +7,13 @@ from pathlib import Path
 import sys
 
 import pandas as pd
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 
 ROOT = Path(__file__).resolve().parent
 sys.path.append(str(ROOT))
 from src.predictor import Predictor
 from src.simulator import run_full_simulation, COIN_BIAS
-from src.flags import flag
+from src.flags import flag, FLAGS
 
 app = Flask(__name__)
 app.jinja_env.globals["flag"] = flag
@@ -139,6 +139,57 @@ def predict():
         team1=t1, team2=t2, neutral=neutral,
         result=result, error=error,
     )
+
+
+@app.route("/builder")
+def builder():
+    """Custom bracket: the user places teams, an animation resolves each tie."""
+    seed = _seed()
+    sim = get_sim(seed)
+
+    # Pre-fill the Round-of-32 with the qualifiers from the current simulation.
+    r32 = [m for m in sim["ko_matches"] if m["stage"] == "Round of 32"]
+    first_round = [{"team1": m["team1"], "team2": m["team2"]} for m in r32]
+
+    return render_template(
+        "builder.html",
+        page="builder",
+        seed=seed,
+        champion=sim["champion"],
+        teams=TEAMS,
+        first_round=first_round,
+        flags=FLAGS,
+    )
+
+
+def _decide_winner(t1: str, t2: str):
+    """Resolve a knockout tie at a neutral venue using the model.
+
+    A tie can't end in a draw: when DRAW is the top outcome the winner is the
+    team with the higher win probability (a coin flip nudged to the favourite).
+    """
+    p = _predictor.predict(t1, t2, neutral=True, is_world_cup=True)
+    top = max(p, key=p.get)
+    coin_flip = top == "draw"
+    winner = t1 if p["home"] >= p["away"] else t2
+    return winner, p, coin_flip
+
+
+@app.route("/api/match")
+def api_match():
+    t1 = request.args.get("team1", "")
+    t2 = request.args.get("team2", "")
+    if not t1 or not t2 or t1 == t2:
+        return jsonify({"error": "Need two different teams."}), 400
+    try:
+        winner, p, coin_flip = _decide_winner(t1, t2)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    return jsonify({
+        "team1": t1, "team2": t2,
+        "p_home": p["home"], "p_draw": p["draw"], "p_away": p["away"],
+        "winner": winner, "coin_flip": coin_flip,
+    })
 
 
 if __name__ == "__main__":

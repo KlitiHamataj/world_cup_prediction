@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% macro team_options(selected) %}
+  <option value="">— pick —</option>
+  {% for t in teams %}
+  <option value="{{ t }}" {{ 'selected' if t == selected else '' }}>{{ t }}</option>
+  {% endfor %}
+{% endmacro %}
+
+{% macro r32_match(pair, half, idx) %}
+<div class="ko-match" id="{{ half }}-0-{{ idx }}" data-half="{{ half }}" data-round="0" data-idx="{{ idx }}">
+  <div class="team" data-slot="0"><select class="bk-select">{{ team_options(pair.team1) }}</select><span class="pc"></span></div>
+  <div class="team" data-slot="1"><select class="bk-select">{{ team_options(pair.team2) }}</select><span class="pc"></span></div>
+</div>
+{% endmacro %}
+
+{% macro empty_match(half, ri, idx) %}
+<div class="ko-match pending" id="{{ half }}-{{ ri }}-{{ idx }}" data-half="{{ half }}" data-round="{{ ri }}" data-idx="{{ idx }}">
+  <div class="team" data-slot="0"><span class="nm">—</span><span class="pc"></span></div>
+  <div class="team" data-slot="1"><span class="nm">—</span><span class="pc"></span></div>
+</div>
+{% endmacro %}
+
+{% block content %}
+<section class="intro">
+  <h2>Build your own bracket</h2>
+  <p>Pick the 32 teams in the Round of 32 (pre-filled with the simulated qualifiers — change any of them).
+     Then hit <strong>Play tournament</strong>: each tie is resolved one by one by the model and the winner
+     advances toward the final in the centre. A tie the model calls a
+     <span class="flip-inline">draw</span> goes to the higher win probability.</p>
+  <div class="builder-controls">
+    <button id="play-btn" class="btn-play">▶ Play tournament</button>
+    <button id="random-btn" class="btn-reset">🎲 Randomize teams</button>
+    <button id="reset-btn" class="btn-reset" hidden>↺ Reset &amp; edit</button>
+    <span id="builder-status" class="builder-status"></span>
+  </div>
+</section>
+
+<div class="bracket-wrap">
+  <svg class="connectors" aria-hidden="true"></svg>
+  <div class="bracket">
+
+    {# ---------- LEFT half (feeds finalist 1) ---------- #}
+    <div class="round">
+      <div class="round-title">Round of 32</div>
+      {% for pair in first_round[0:8] %}{{ r32_match(pair, 'L', loop.index0) }}{% endfor %}
+    </div>
+    <div class="round">
+      <div class="round-title">Round of 16</div>
+      {% for i in range(4) %}{{ empty_match('L', 1, i) }}{% endfor %}
+    </div>
+    <div class="round">
+      <div class="round-title">Quarter-final</div>
+      {% for i in range(2) %}{{ empty_match('L', 2, i) }}{% endfor %}
+    </div>
+    <div class="round">
+      <div class="round-title">Semi-final</div>
+      {{ empty_match('L', 3, 0) }}
+    </div>
+
+    {# ---------- CENTER (Final + champion) ---------- #}
+    <div class="round center-col">
+      <div class="champ-wrap">
+        <div class="ko-match champion-card" id="champion">
+          <span class="trophy">🏆</span>
+          <span class="champ-name">—</span>
+        </div>
+        <div class="round-title final-title">Final</div>
+        <div class="ko-match pending" id="F-4-0" data-half="F" data-round="4" data-idx="0">
+          <div class="team" data-slot="0"><span class="nm">—</span><span class="pc"></span></div>
+          <div class="team" data-slot="1"><span class="nm">—</span><span class="pc"></span></div>
+        </div>
+      </div>
+    </div>
+
+    {# ---------- RIGHT half (inner -> outer, feeds finalist 2) ---------- #}
+    <div class="round">
+      <div class="round-title">Semi-final</div>
+      {{ empty_match('R', 3, 0) }}
+    </div>
+    <div class="round">
+      <div class="round-title">Quarter-final</div>
+      {% for i in range(2) %}{{ empty_match('R', 2, i) }}{% endfor %}
+    </div>
+    <div class="round">
+      <div class="round-title">Round of 16</div>
+      {% for i in range(4) %}{{ empty_match('R', 1, i) }}{% endfor %}
+    </div>
+    <div class="round">
+      <div class="round-title">Round of 32</div>
+      {% for pair in first_round[8:16] %}{{ r32_match(pair, 'R', loop.index0) }}{% endfor %}
+    </div>
+
+  </div>
+</div>
+
+<script id="flags-data" type="application/json">{{ flags | tojson }}</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='builder.js') }}"></script>
+{% endblock %}

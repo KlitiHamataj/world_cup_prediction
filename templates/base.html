@@ -20,6 +20,7 @@
     <nav class="tabs">
       <a class="tab {{ 'active' if page == 'groups' else '' }}" href="{{ url_for('groups', seed=seed) }}">Group stage</a>
       <a class="tab {{ 'active' if page == 'bracket' else '' }}" href="{{ url_for('bracket', seed=seed) }}">Knockout bracket</a>
+      <a class="tab {{ 'active' if page == 'builder' else '' }}" href="{{ url_for('builder', seed=seed) }}">Build your bracket</a>
       <a class="tab {{ 'active' if page == 'predict' else '' }}" href="{{ url_for('predict', seed=seed) }}">Predict a match</a>
     </nav>
     <div class="champion-badge">

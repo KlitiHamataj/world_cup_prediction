@@ -126,6 +126,46 @@ main{max-width:2000px; margin:0 auto; padding:24px 26px 8px}
 .verdict{margin-top:18px; font-size:.95rem; color:var(--muted)}
 .verdict strong{color:var(--accent)}
 
+/* ---- Custom bracket builder ---- */
+.builder-controls{display:flex; align-items:center; gap:14px; justify-content:center; margin-top:16px; flex-wrap:wrap}
+.btn-play,.btn-reset{border:none; border-radius:8px; padding:11px 22px; font-weight:700; font-size:.92rem; cursor:pointer; font-family:inherit}
+.btn-play{background:var(--accent); color:#06281c}
+.btn-play:hover{background:#46e0a8}
+.btn-play:disabled{opacity:.5; cursor:default}
+.btn-reset{background:var(--surface2); color:var(--text); border:1px solid var(--border2)}
+.btn-reset:hover{border-color:var(--accent); color:var(--accent)}
+.builder-status{font-size:.86rem; color:var(--muted); font-weight:600}
+.builder-status.err{color:#f0a0a0}
+
+/* Builder reuses the bracket layout (.bracket/.round/.ko-match/.team).
+   These rules add the editable selects and the play animation states. */
+.builder-controls .btn-play{order:0}
+
+/* Round of 32 dropdowns */
+.ko-match .bk-select{flex:1 1 auto; min-width:0; background:var(--surface2); color:var(--text);
+  border:1px solid var(--border2); border-radius:6px; padding:4px 6px; font-size:.78rem; font-family:inherit}
+.ko-match .team{min-height:30px}
+.ko-match .team .pc:empty{display:none}
+.bracket.locked .bk-select{pointer-events:none; opacity:.85; -webkit-appearance:none; appearance:none; border-color:var(--border)}
+
+/* Match states during the animation */
+.ko-match.pending{opacity:.4}
+.ko-match.pending .team .nm{color:var(--muted)}
+.ko-match.playing{opacity:1; box-shadow:0 0 0 2px var(--accent), 0 0 18px rgba(52,211,153,.4);
+  animation:bk-pulse 1s ease-in-out infinite}
+@keyframes bk-pulse{0%,100%{box-shadow:0 0 0 2px var(--accent),0 0 14px rgba(52,211,153,.28)}
+  50%{box-shadow:0 0 0 2px var(--accent),0 0 24px rgba(52,211,153,.6)}}
+.ko-match.coin::after{content:"COIN FLIP"; position:absolute; top:-8px; right:8px; background:var(--gold);
+  color:#1a1405; font-size:.55rem; font-weight:800; padding:1px 6px; border-radius:5px; letter-spacing:.5px}
+.ko-match .team.win{animation:bk-reveal .45s ease}
+@keyframes bk-reveal{from{transform:scale(.9); background:rgba(52,211,153,.45)}to{transform:scale(1)}}
+
+/* Champion reveal */
+#champion.champion-card .champ-name{transition:opacity .3s}
+#champion.champion-card:not(.revealed){opacity:.5}
+#champion.champion-card.revealed{animation:bk-champ .6s ease}
+@keyframes bk-champ{0%{transform:scale(.82)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+
 footer{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; max-width:1560px; margin:22px auto 0; padding:18px 26px; color:var(--muted); font-size:.76rem; border-top:1px solid var(--border)}
 footer .resim{color:var(--text); background:var(--surface2); border:1px solid var(--border2); text-decoration:none; font-weight:600; padding:8px 16px; border-radius:8px}
 footer .resim:hover{border-color:var(--accent); color:var(--accent)}
