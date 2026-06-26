@@ -19,7 +19,7 @@ import time
 import logging
 import requests
 from datetime import datetime, timedelta
-from src.team_names import normalize
+from src.utils.team_names import normalize
 
 logger = logging.getLogger(__name__)
 

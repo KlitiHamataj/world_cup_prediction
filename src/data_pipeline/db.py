@@ -17,7 +17,7 @@ import pathlib
 import pandas as pd
 from contextlib import contextmanager
 
-DB_PATH = pathlib.Path(__file__).resolve().parent.parent / "data" / "football.db"
+DB_PATH = pathlib.Path(__file__).resolve().parent.parent.parent / "data" / "football.db"
 
 
 # ---------------------------------------------------------------------------

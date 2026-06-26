@@ -14,6 +14,8 @@ Usage:
     normalize("Korea Republic")   # → "South Korea"
 """
 
+import pandas as pd
+
 # Canonical name - list of known variants
 # The key is what we store in the DB. The values are what we might encounter.
 _ALIASES: dict[str, list[str]] = {
@@ -33,7 +35,9 @@ _ALIASES: dict[str, list[str]] = {
     "East Timor": ["Timor-Leste"],
     "Eswatini": ["Swaziland"],
     "Germany": ["Germany FR", "West Germany"],
+    "Indonesia": ["Dutch East Indies"],
     "Iran": ["IR Iran", "Iran (Islamic Republic of)"],
+    "Ireland": ["Republic of Ireland"],
     "Kyrgyzstan": ["Kyrgyz Republic"],
     "Laos": ["Lao People's Democratic Republic"],
     "Macau": ["Macao"],
@@ -45,7 +49,7 @@ _ALIASES: dict[str, list[str]] = {
     "Palestine": ["Palestinian Territory"],
     "Russia": ["Soviet Union", "USSR"],
     "São Tomé and Príncipe": ["Sao Tome and Principe", "São Tomé e Príncipe"],
-    "Serbia": ["Serbia and Montenegro", "Yugoslavia"],
+    "Serbia": ["Serbia and Montenegro", "Yugoslavia", "FR Yugoslavia"],
     "South Korea": [
         "Korea Republic", "Republic of Korea", "Korea, Republic of", "Korea South",
     ],
@@ -63,7 +67,6 @@ _ALIASES: dict[str, list[str]] = {
     "Turkey": ["Türkiye", "Turkiye"],
     "United States": [
         "USA", "US", "United States of America", "U.S.A.", "U.S.",
-        "United States Virgin Islands",
     ],
     "Venezuela": ["Venezuela (Bolivarian Republic of)"],
     "Vietnam": ["Viet Nam"],
@@ -89,13 +92,13 @@ def normalize(name: str) -> str:
     return _LOOKUP.get(stripped.lower(), stripped)
 
 
-def normalize_column(df, column: str = "home_team"):
+def normalize_column(df: pd.DataFrame, column: str = "home_team") -> pd.DataFrame:
     """Normalize a team name column in a DataFrame (in-place)."""
     df[column] = df[column].apply(normalize)
     return df
 
 
-def normalize_all_team_columns(df):
+def normalize_all_team_columns(df: pd.DataFrame) -> pd.DataFrame:
     """Normalize all team-related columns in a DataFrame."""
     for col in df.columns:
         if "team" in col.lower():

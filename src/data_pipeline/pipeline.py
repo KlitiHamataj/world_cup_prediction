@@ -18,12 +18,12 @@ Usage:
 import argparse
 import logging
 from datetime import datetime
-from src.db import (
+from src.data_pipeline.db import (
     get_db, init_db, upsert_wc2026_match, upsert_odds,
     upsert_team, log_pipeline_run,
 )
-from src.scraper import FootballDataAPI, OddsScraper
-from src.config import get_config
+from src.data_pipeline.scraper import FootballDataAPI, OddsScraper
+from src.utils.config import get_confi
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
