@@ -12,7 +12,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_DIR = PROJECT_ROOT / "data" / "raw"
 MIN_PROB = 0.03
 
 

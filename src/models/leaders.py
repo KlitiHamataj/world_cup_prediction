@@ -9,7 +9,8 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
-DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_DIR = PROJECT_ROOT / "data" / "raw"
 FEATURES = [
     "matches_played",
     "avg_scored",
