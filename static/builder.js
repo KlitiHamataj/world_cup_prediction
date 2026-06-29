@@ -5,6 +5,8 @@
   function start() {
     let FLAGS = {};
     try { FLAGS = JSON.parse(document.getElementById("flags-data").textContent || "{}"); } catch (e) {}
+    let TEAMS = [];
+    try { TEAMS = JSON.parse(document.getElementById("teams-data").textContent || "[]"); } catch (e) {}
 
     const ROUND_COUNT = { 0: 8, 1: 4, 2: 2, 3: 1 }; // matches per half, per round
     const bracket = document.querySelector(".bracket");
@@ -30,16 +32,20 @@
     PLAN.push({ half: "F", ri: 4, idx: 0 }); // the final
 
     function getTeam(half, ri, idx, slot) {
-      const el = teamEl(matchEl(half, ri, idx), slot);
-      if (ri === 0) return el.querySelector(".bk-select").value;
-      return el.dataset.team || "";
+      return teamEl(matchEl(half, ri, idx), slot).dataset.team || "";
+    }
+
+    function setCardTeam(card, name) {
+      card.dataset.team = name;
+      card.querySelector(".nm").innerHTML = withFlag(name);
     }
 
     function setTeam(el, slot, name) {
-      const t = teamEl(el, slot);
-      t.dataset.team = name;
-      t.querySelector(".nm").innerHTML = withFlag(name);
+      setCardTeam(teamEl(el, slot), name);
     }
+
+    const benchCards = () => Array.from(document.querySelectorAll("#bench .bench-card"));
+    const allDraggable = () => Array.from(document.querySelectorAll(".team.draggable"));
 
     function advance(winner, half, ri, idx) {
       if (ri < 3) {
@@ -57,10 +63,13 @@
     }
 
     // ---- validation ------------------------------------------------------
+    function r32Cards() {
+      return Array.from(bracket.querySelectorAll('.ko-match[data-round="0"] .team'));
+    }
+
     function validate() {
-      const picks = [];
-      bracket.querySelectorAll('.ko-match[data-round="0"] .bk-select').forEach((s) => picks.push(s.value));
-      if (picks.some((p) => !p)) return "Fill in all 32 teams first.";
+      const picks = r32Cards().map((c) => c.dataset.team || "");
+      if (picks.some((p) => !p)) return "Every slot needs a team.";
       const counts = {};
       picks.forEach((p) => (counts[p] = (counts[p] || 0) + 1));
       const dup = Object.keys(counts).filter((t) => counts[t] > 1);
@@ -114,7 +123,8 @@
       statusEl.classList.remove("err");
       playBtn.disabled = true;
       bracket.classList.add("locked");
-      bracket.querySelectorAll(".bk-select").forEach((s) => (s.disabled = true));
+      document.querySelector(".builder-page").classList.add("locked");
+      allDraggable().forEach((c) => { c.setAttribute("draggable", "false"); c.classList.remove("draggable"); });
 
       for (const m of PLAN) {
         await playMatch(m.half, m.ri, m.idx);
@@ -168,17 +178,62 @@
 
     // ---- randomize: drop 32 distinct teams into the Round of 32 ----------
     function randomize() {
-      const selects = bracket.querySelectorAll('.ko-match[data-round="0"] .bk-select');
-      if (!selects.length) return;
-      const pool = Array.from(selects[0].options).map((o) => o.value).filter(Boolean);
+      const cards = r32Cards(), bench = benchCards();
+      if (!cards.length) return;
+      const pool = (TEAMS.length ? TEAMS.slice() : cards.concat(bench).map((c) => c.dataset.team));
       for (let i = pool.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
       }
-      selects.forEach((s, k) => { s.value = pool[k % pool.length]; });
-      statusEl.textContent = "Teams randomized — hit Play.";
+      cards.forEach((c, k) => setCardTeam(c, pool[k]));            // first 32 -> bracket
+      bench.forEach((c, k) => setCardTeam(c, pool[cards.length + k])); // rest -> bench
+      if (window.renderFlags) window.renderFlags();
+      statusEl.textContent = "Teams randomized — drag to tweak, then Play.";
       statusEl.classList.remove("err");
     }
+
+    // ---- drag & drop: swap the two dragged team cards --------------------
+    let dragSrc = null;
+    function clearDragOver() {
+      bracket.querySelectorAll(".team.drag-over").forEach((x) => x.classList.remove("drag-over"));
+    }
+    function onDragStart(e) {
+      const card = e.currentTarget;
+      if (!card.classList.contains("draggable")) { e.preventDefault(); return; }
+      dragSrc = card;
+      card.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+      try { e.dataTransfer.setData("text/plain", card.dataset.team || ""); } catch (_) {}
+    }
+    function onDragOver(e) {
+      if (!dragSrc) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      if (e.currentTarget !== dragSrc) e.currentTarget.classList.add("drag-over");
+    }
+    function onDragLeave(e) { e.currentTarget.classList.remove("drag-over"); }
+    function onDrop(e) {
+      e.preventDefault();
+      const target = e.currentTarget;
+      target.classList.remove("drag-over");
+      if (!dragSrc || dragSrc === target) return;
+      const a = dragSrc.dataset.team, b = target.dataset.team;
+      setCardTeam(dragSrc, b);
+      setCardTeam(target, a);
+      if (window.renderFlags) window.renderFlags();
+    }
+    function onDragEnd(e) {
+      e.currentTarget.classList.remove("dragging");
+      clearDragOver();
+      dragSrc = null;
+    }
+    allDraggable().forEach((card) => {
+      card.addEventListener("dragstart", onDragStart);
+      card.addEventListener("dragover", onDragOver);
+      card.addEventListener("dragleave", onDragLeave);
+      card.addEventListener("drop", onDrop);
+      card.addEventListener("dragend", onDragEnd);
+    });
 
     playBtn.addEventListener("click", play);
     const randomBtn = document.getElementById("random-btn");

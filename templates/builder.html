@@ -1,16 +1,15 @@
 {% extends "base.html" %}
 
-{% macro team_options(selected) %}
-  <option value="">— pick —</option>
-  {% for t in teams %}
-  <option value="{{ t }}" {{ 'selected' if t == selected else '' }}>{{ t }}</option>
-  {% endfor %}
+{% macro card(team, slot) %}
+<div class="team draggable" data-slot="{{ slot }}" draggable="true" data-team="{{ team }}">
+  <span class="grip">⠿</span><span class="nm">{{ flag(team) }} {{ team }}</span><span class="pc"></span>
+</div>
 {% endmacro %}
 
 {% macro r32_match(pair, half, idx) %}
 <div class="ko-match" id="{{ half }}-0-{{ idx }}" data-half="{{ half }}" data-round="0" data-idx="{{ idx }}">
-  <div class="team" data-slot="0"><select class="bk-select">{{ team_options(pair.team1) }}</select><span class="pc"></span></div>
-  <div class="team" data-slot="1"><select class="bk-select">{{ team_options(pair.team2) }}</select><span class="pc"></span></div>
+  {{ card(pair.team1, 0) }}
+  {{ card(pair.team2, 1) }}
 </div>
 {% endmacro %}
 
@@ -22,12 +21,10 @@
 {% endmacro %}
 
 {% block content %}
+<div class="builder-page">
 <section class="intro">
   <h2>Build your own bracket</h2>
-  <p>Pick the 32 teams in the Round of 32 (pre-filled with the simulated qualifiers — change any of them).
-     Then hit <strong>Play tournament</strong>: each tie is resolved one by one by the model and the winner
-     advances toward the final in the centre. A tie the model calls a
-     <span class="flip-inline">draw</span> goes to the higher win probability.</p>
+  <p>The Round of 32 is pre-filled with the simulated qualifiers. A tie the model calls a <span class="flip-inline">draw</span> goes to the higher win probability.</p>
   <div class="builder-controls">
     <button id="play-btn" class="btn-play">▶ Play tournament</button>
     <button id="random-btn" class="btn-reset">🎲 Randomize teams</button>
@@ -94,7 +91,21 @@
   </div>
 </div>
 
+<section class="bench-section">
+  <h3>Teams not in the bracket <span class="bench-hint">— drag one onto a slot to bring it in</span></h3>
+  <div class="bench" id="bench">
+    {% for t in bench %}
+    <div class="team draggable bench-card" draggable="true" data-team="{{ t }}">
+      <span class="grip">⠿</span><span class="nm">{{ flag(t) }} {{ t }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+</div>
+
 <script id="flags-data" type="application/json">{{ flags | tojson }}</script>
+<script id="teams-data" type="application/json">{{ teams | tojson }}</script>
 {% endblock %}
 
 {% block scripts %}

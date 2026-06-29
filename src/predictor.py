@@ -70,7 +70,27 @@ class Predictor:
     # ----- public API ----------------------------------------------------
     def predict(self, home: str, away: str, neutral: bool = True,
                 is_world_cup: bool = True) -> dict:
-        """Return {'home': p, 'draw': p, 'away': p} probabilities."""
+        """Return {'home': p, 'draw': p, 'away': p} probabilities.
+
+        On a neutral venue the matchup has no real "home" team, yet the model
+        was trained mostly on non-neutral games and keeps a residual bias for
+        the home slot. To make the result order-independent we average the two
+        orderings (A vs B and B vs A) so predict(A, B) and predict(B, A) are
+        exact mirrors of each other.
+        """
+        if neutral:
+            p1 = self._predict_raw(home, away, neutral=True, is_world_cup=is_world_cup)
+            p2 = self._predict_raw(away, home, neutral=True, is_world_cup=is_world_cup)
+            return {
+                "home": (p1["home"] + p2["away"]) / 2,
+                "draw": (p1["draw"] + p2["draw"]) / 2,
+                "away": (p1["away"] + p2["home"]) / 2,
+            }
+        return self._predict_raw(home, away, neutral=False, is_world_cup=is_world_cup)
+
+    def _predict_raw(self, home: str, away: str, neutral: bool = True,
+                     is_world_cup: bool = True) -> dict:
+        """Single-direction model call (home slot vs away slot)."""
         h, a = self._team_state(home), self._team_state(away)
         n, hw, aw, dr = self._h2h(home, away)
 

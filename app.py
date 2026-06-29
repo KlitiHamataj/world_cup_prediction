@@ -151,6 +151,10 @@ def builder():
     r32 = [m for m in sim["ko_matches"] if m["stage"] == "Round of 32"]
     first_round = [{"team1": m["team1"], "team2": m["team2"]} for m in r32]
 
+    # Teams not currently in the bracket (the "bench") = all WC teams minus the 32.
+    in_bracket = {m["team1"] for m in first_round} | {m["team2"] for m in first_round}
+    bench = sorted(t for t in TEAMS if t not in in_bracket)
+
     return render_template(
         "builder.html",
         page="builder",
@@ -158,6 +162,7 @@ def builder():
         champion=sim["champion"],
         teams=TEAMS,
         first_round=first_round,
+        bench=bench,
         flags=FLAGS,
     )
 
