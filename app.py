@@ -15,6 +15,7 @@ from src.models.predictor import Predictor
 from src.models.simulator import run_full_simulation, COIN_BIAS
 from src.utils.flags import flag, FLAGS, CODES
 from src.models.ensemble import get_ensemble, get_dashboard_data, WEIGHT_LEADERS, WEIGHT_PROFILES
+from src.models.next_game import get_next_games
 
 app = Flask(__name__)
 app.jinja_env.globals["flag"] = flag
@@ -238,6 +239,7 @@ def dashboard():
     data = get_dashboard_data()
     ranking = data["ranking"]
     champion = ranking[0]["team"] if ranking else "-"
+    next_games = get_next_games(_predictor)   # market vs model odds for upcoming games
     return render_template(
         "dashboard.html",
         page="dashboard",
@@ -248,6 +250,7 @@ def dashboard():
         hosts=data["hosts"],
         confeds=data["confeds"],
         importances=data["importances"],
+        next_games=next_games,
         weight_leaders=round(WEIGHT_LEADERS * 100),
         weight_profiles=round(WEIGHT_PROFILES * 100),
     )

@@ -2,10 +2,18 @@
 {% block content %}
 
 <style>
-  .dash{max-width:920px; margin:0 auto}
+  .dash{max-width:1500px; margin:0 auto}
+
+  /* Top band: podium + stat cards side by side */
+  .dash-top{display:grid; grid-template-columns:auto 1fr; gap:26px; align-items:center; margin-bottom:24px}
+
+  /* Two-column main area: ranking table beside the rest */
+  .dash-grid{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+    gap:22px; align-items:start}
+  .dash-col-side > * + *{margin-top:22px}
 
   /* Podium */
-  .podium{display:flex; justify-content:center; align-items:flex-end; gap:14px; margin:6px 0 26px}
+  .podium{display:flex; justify-content:center; align-items:flex-end; gap:14px; margin:0}
   .pod{background:var(--surface); border:1px solid var(--border); border-radius:var(--r);
     padding:16px 14px; text-align:center; width:170px}
   .pod .medal{font-size:1.5rem}
@@ -18,8 +26,8 @@
   .pod-1 .pod-pct{color:var(--gold)}
 
   /* Stat cards */
-  .dash-cards{display:grid; grid-template-columns:repeat(auto-fit, minmax(170px,1fr));
-    gap:12px; margin-bottom:26px}
+  .dash-cards{display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr));
+    gap:12px; margin:0}
   .scard{background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:14px}
   .scard .scard-label{font-size:.62rem; text-transform:uppercase; letter-spacing:1px; color:var(--muted)}
   .scard .scard-team{font-weight:700; font-size:1rem; margin:6px 0 2px}
@@ -27,7 +35,7 @@
   .scard .scard-sub b{color:var(--accent)}
 
   /* Generic panels + bars */
-  .dash-insights{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:22px}
+  .dash-insights{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:0}
   .panel{background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:16px}
   .panel h3{margin:0 0 12px; font-size:.95rem}
   .ibar-row{display:grid; grid-template-columns:130px 1fr 42px; align-items:center; gap:8px; margin:7px 0}
@@ -47,7 +55,7 @@
 
   /* Ranking table */
   .fav-wrap{background:var(--surface); border:1px solid var(--border);
-    border-radius:var(--r); overflow:hidden; margin-bottom:22px}
+    border-radius:var(--r); overflow:hidden; margin:0}
   .fav-table{width:100%}
   .fav-table th.num, .fav-table td.num{text-align:right; width:78px}
   .fav-table td.muted{color:var(--muted); font-variant-numeric:tabular-nums; font-weight:600; font-size:.8rem}
@@ -59,7 +67,28 @@
   .fav-bar span{display:block; height:100%; background:var(--accent); border-radius:6px}
   .fav-val{font-variant-numeric:tabular-nums; font-weight:700; font-size:.82rem; min-width:44px; text-align:right}
 
-  @media (max-width:640px){ .dash-insights{grid-template-columns:1fr} }
+  /* Upcoming matches — horizontal strip, market vs model */
+  .upcoming{margin:0}
+  .upcoming-title{margin:0 0 12px; font-size:.95rem}
+  .ng-strip{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  .ng-card{background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--r); padding:14px}
+  .ng-date{font-size:.64rem; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); margin-bottom:6px}
+  .ng-match{font-weight:700; font-size:.9rem; margin-bottom:10px; line-height:1.5}
+  .ng-match .ng-vs{color:var(--muted); font-weight:400; font-size:.76rem; margin:0 4px}
+  .ng-tbl{width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums}
+  .ng-tbl th, .ng-tbl td{text-align:right; padding:3px 0; font-size:.8rem}
+  .ng-tbl th:first-child, .ng-tbl td:first-child{text-align:left; color:var(--muted); font-weight:600; font-size:.72rem}
+  .ng-tbl .ng-tbl-h th{font-size:.64rem; color:var(--muted); font-weight:600}
+  .ng-tbl .ng-model td{color:var(--accent); font-weight:700}
+  .ng-tbl .ng-odds td{color:var(--muted); font-size:.76rem}
+
+  /* Collapse to single column on narrower screens */
+  @media (max-width:1080px){
+    .dash-grid{grid-template-columns:1fr}
+    .dash-top{grid-template-columns:1fr; justify-items:center}
+  }
+  @media (max-width:640px){ .dash-insights{grid-template-columns:1fr} .ng-strip{grid-template-columns:1fr} }
 </style>
 
 <div class="dash">
@@ -69,6 +98,8 @@
   <p>An overall <strong>probability of winning the cup</strong> for every team, blending
      <strong>recent form</strong> (4-yr form + Elo) and <strong>champion pedigree</strong> (history + host status).</p>
 </section>
+
+<div class="dash-top">
 
 {# ---------- Podium (top 3) ---------- #}
 {% if ranking|length >= 3 %}
@@ -118,6 +149,69 @@
   </div>
 </div>
 
+</div>{# /dash-top #}
+
+<div class="dash-grid">
+
+{# ---------- Left column: full ranking ---------- #}
+<div class="dash-col-main">
+<div class="fav-wrap">
+  <table class="standings fav-table">
+    <thead>
+      <tr>
+        <th>#</th><th>Team</th>
+        <th class="num">Form</th><th class="num">Pedigree</th>
+        <th class="fav-th">Win probability</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set top = ranking[0].final_pct if ranking else 100 %}
+      {% for row in ranking %}
+      <tr class="{{ 'top3' if row.rank <= 3 else '' }}">
+        <td class="pos">{{ row.rank }}</td>
+        <td class="fav-team">{{ flag(row.team) }} {{ row.team }}</td>
+        <td class="num muted">{{ row.leaders_pct }}%</td>
+        <td class="num muted">{{ row.profiles_pct }}%</td>
+        <td class="fav-prob">
+          <div class="fav-bar"><span style="width: {{ (row.final_pct / top * 100)|round(1) }}%"></span></div>
+          <span class="fav-val">{{ row.final_pct }}%</span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>{# /dash-col-main #}
+
+{# ---------- Right column: upcoming, insights, hosts ---------- #}
+<div class="dash-col-side">
+
+{# ---------- Upcoming matches: market vs model odds (horizontal) ---------- #}
+{% if next_games %}
+<div class="upcoming">
+  <h3 class="upcoming-title">Upcoming matches — market vs model ⚽</h3>
+  <div class="ng-strip">
+    {% for g in next_games %}
+    <div class="ng-card">
+      <div class="ng-date">{{ g.date }} · avg of {{ g.n_books }} books</div>
+      <div class="ng-match">
+        {{ flag(g.home) }} {{ g.home }}<span class="ng-vs">vs</span>{{ flag(g.away) }} {{ g.away }}
+      </div>
+      <table class="ng-tbl">
+        <tr class="ng-tbl-h"><th></th><th>1</th><th>X</th><th>2</th></tr>
+        <tr><td>Market</td><td>{{ g.market.home }}%</td><td>{{ g.market.draw }}%</td><td>{{ g.market.away }}%</td></tr>
+        {% if g.model %}
+        <tr class="ng-model"><td>Model</td><td>{{ g.model.home }}%</td><td>{{ g.model.draw }}%</td><td>{{ g.model.away }}%</td></tr>
+        {% endif %}
+        <tr class="ng-odds"><td>Odds</td><td>{{ g.avg_odds.home }}</td><td>{{ g.avg_odds.draw }}</td><td>{{ g.avg_odds.away }}</td></tr>
+      </table>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+</br>
+
 {# ---------- Insights: feature importances + confederations ---------- #}
 <div class="dash-insights">
   <div class="panel">
@@ -162,35 +256,9 @@
 </div>
 {% endif %}
 
-</br>
+</div>{# /dash-col-side #}
 
-{# ---------- Full ranking ---------- #}
-<div class="fav-wrap">
-  <table class="standings fav-table">
-    <thead>
-      <tr>
-        <th>#</th><th>Team</th>
-        <th class="num">Form</th><th class="num">Pedigree</th>
-        <th class="fav-th">Win probability</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% set top = ranking[0].final_pct if ranking else 100 %}
-      {% for row in ranking %}
-      <tr class="{{ 'top3' if row.rank <= 3 else '' }}">
-        <td class="pos">{{ row.rank }}</td>
-        <td class="fav-team">{{ flag(row.team) }} {{ row.team }}</td>
-        <td class="num muted">{{ row.leaders_pct }}%</td>
-        <td class="num muted">{{ row.profiles_pct }}%</td>
-        <td class="fav-prob">
-          <div class="fav-bar"><span style="width: {{ (row.final_pct / top * 100)|round(1) }}%"></span></div>
-          <span class="fav-val">{{ row.final_pct }}%</span>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+</div>{# /dash-grid #}
 
 </div>
 {% endblock %}
