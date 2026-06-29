@@ -142,8 +142,8 @@ main{max-width:2000px; margin:0 auto; padding:24px 26px 8px}
 .builder-page .ko-match .team{min-height:30px}
 .builder-page .ko-match .team .pc:empty{display:none}
 
-/* Centre the country name inside every card (grip pinned left, % pinned right) */
-.builder-page .ko-match .team{position:relative; justify-content:center; text-align:center}
+/* Left-align the country name inside every card (grip pinned left, % pinned right) */
+.builder-page .ko-match .team{position:relative; justify-content:flex-start; text-align:left; padding-left:22px; padding-right:44px}
 .builder-page .ko-match .team .nm{flex:0 1 auto; overflow:hidden; text-overflow:ellipsis}
 .builder-page .ko-match .team .grip{position:absolute; left:7px; top:50%; transform:translateY(-50%);
   color:var(--muted); font-size:.78rem; opacity:.5; cursor:grab}

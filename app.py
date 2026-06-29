@@ -123,7 +123,7 @@ def predict():
         else:
             p = _predictor.predict(t1, t2, neutral=neutral, is_world_cup=True)
             outcomes = {f"{t1} win": p["home"], "Draw": p["draw"], f"{t2} win": p["away"]}
-            verdict = max(outcomes, key=outcomes.get)
+            verdict = max(outcomes, key=outcomes.get) #type: ignore
             result = {
                 "team1": t1, "team2": t2, "neutral": neutral,
                 "p_home": p["home"], "p_draw": p["draw"], "p_away": p["away"],
@@ -174,7 +174,7 @@ def _decide_winner(t1: str, t2: str):
     team with the higher win probability (a coin flip nudged to the favourite).
     """
     p = _predictor.predict(t1, t2, neutral=True, is_world_cup=True)
-    top = max(p, key=p.get)
+    top = max(p, key=p.get) #type: ignore
     coin_flip = top == "draw"
     winner = t1 if p["home"] >= p["away"] else t2
     return winner, p, coin_flip
