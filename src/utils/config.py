@@ -8,7 +8,7 @@ Create a .env file in the project root (git-ignored) with:
 import os
 import pathlib
 
-ENV_PATH = pathlib.Path(__file__).resolve().parent.parent / ".env"
+ENV_PATH = pathlib.Path(__file__).resolve().parent.parent.parent / ".env"
 
 
 def _load_dotenv():

@@ -6,7 +6,7 @@ Two data sources:
   - the-odds-api.com    betting odds from multiple bookmakers
 
 Usage:
-    from src.scraper import FootballDataAPI, OddsScraper
+    from src.data_pipeline.scraper import FootballDataAPI, OddsScraper
 
     api = FootballDataAPI(api_key="YOUR_KEY")  # optional for free tier
     fixtures = api.get_wc2026_fixtures()
@@ -19,7 +19,7 @@ import time
 import logging
 import requests
 from datetime import datetime, timedelta
-from src.team_names import normalize
+from src.utils.team_names import normalize
 
 logger = logging.getLogger(__name__)
 

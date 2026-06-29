@@ -52,7 +52,7 @@ Context:
 import pandas as pd
 import numpy as np
 from collections import deque, defaultdict
-from src.db import get_db
+from src.data_pipeline.db import get_db
 
 
 def _outcome(home_score, away_score) -> str:

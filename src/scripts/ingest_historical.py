@@ -13,13 +13,13 @@ Run:
 
 import pathlib
 import pandas as pd
-from src.db import (
+from src.data_pipeline.db import (
     get_db, init_db, upsert_matches_historical,
     upsert_wc2026_match, upsert_team, log_pipeline_run,
 )
-from src.team_names import normalize, normalize_all_team_columns
+from src.utils.team_names import normalize, normalize_all_team_columns
 
-RAW_DIR = pathlib.Path(__file__).resolve().parent.parent / "data" / "raw"
+RAW_DIR = pathlib.Path(__file__).resolve().parent.parent.parent / "data" / "raw"
 
 
 def ingest_international_results() -> int:

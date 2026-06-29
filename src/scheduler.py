@@ -17,16 +17,16 @@ import threading
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.triggers.cron import CronTrigger
-from src.config import get_config
-from src.pipeline import (
+from src.utils.config import get_config
+from src.data_pipeline.pipeline import (
     sync_wc2026_fixtures,
     sync_recent_results,
     sync_odds,
     compute_team_form_stats,
     promote_wc_results,
 )
-from src.scraper import FootballDataAPI
-from src.db import init_db
+from src.data_pipeline.scraper import FootballDataAPI
+from src.data_pipeline.db import init_db
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")

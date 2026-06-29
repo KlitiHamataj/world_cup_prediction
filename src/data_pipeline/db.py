@@ -2,7 +2,7 @@
 Database layer — schema, connection, and helper queries.
 
 Usage:
-    from src.db import get_db, init_db, queries
+    from src.data_pipeline.db import get_db, init_db, queries
 
     # Initialize (creates tables if they don't exist)
     init_db()
@@ -17,7 +17,7 @@ import pathlib
 import pandas as pd
 from contextlib import contextmanager
 
-DB_PATH = pathlib.Path(__file__).resolve().parent.parent / "data" / "football.db"
+DB_PATH = pathlib.Path(__file__).resolve().parent.parent.parent / "data" / "football.db"
 
 
 # ---------------------------------------------------------------------------

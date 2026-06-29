@@ -24,10 +24,15 @@
 <div class="builder-page">
 <section class="intro">
   <h2>Build your own bracket</h2>
-  <p>The Round of 32 is pre-filled with the simulated qualifiers. A tie the model calls a <span class="flip-inline">draw</span> goes to the higher win probability.</p>
+  <p>The Round of 32 is pre-filled with the {{ 'official 2026 fixtures' if preset == 'official' else 'simulated qualifiers' }}. A tie the model calls a <span class="flip-inline">draw</span> goes to the higher win probability.</p>
   <div class="builder-controls">
     <button id="play-btn" class="btn-play">▶ Play tournament</button>
     <button id="random-btn" class="btn-reset">🎲 Randomize teams</button>
+    {% if preset == 'official' %}
+    <a class="btn-reset" href="{{ url_for('builder', seed=seed) }}">↩ Simulated qualifiers</a>
+    {% else %}
+    <a class="btn-reset" href="{{ url_for('builder', preset='official', seed=seed) }}">🏆 Official bracket</a>
+    {% endif %}
     <button id="reset-btn" class="btn-reset" hidden>↺ Reset &amp; edit</button>
     <span id="builder-status" class="builder-status"></span>
   </div>
@@ -109,5 +114,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='builder.js') }}"></script>
+<script src="{{ url_for('static', filename='builder.js') }}?v=4"></script>
 {% endblock %}

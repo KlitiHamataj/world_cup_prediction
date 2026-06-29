@@ -8,7 +8,7 @@ import joblib
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data" / "training_features.csv"
 MODEL_PATH = ROOT / "models" / "wc_model.pkl"
 

@@ -20,7 +20,15 @@
     const id = (half, ri, idx) => half + "-" + ri + "-" + idx;
     const matchEl = (half, ri, idx) => document.getElementById(id(half, ri, idx));
     const teamEl = (el, slot) => el.querySelector('.team[data-slot="' + slot + '"]');
-    const withFlag = (name) => (FLAGS[name] ? FLAGS[name] + " " + name : name);
+    // FLAGS maps team -> ISO code (e.g. "de"); render the same <img> flag the
+    // server macro uses so advancing / randomized / swapped teams match the
+    // initial Round-of-32 cards instead of showing the bare country code.
+    const withFlag = (name) => {
+      const code = FLAGS[name];
+      if (!code) return name;
+      return '<img class="flag" src="https://flagcdn.com/' + code + '.svg" ' +
+             'alt="' + name + '" loading="lazy"> ' + name;
+    };
 
     // ---- play order: round by round, both halves -------------------------
     const PLAN = [];

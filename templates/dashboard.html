@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  .dash{max-width:920px; margin:0 auto}
+
+  /* Podium */
+  .podium{display:flex; justify-content:center; align-items:flex-end; gap:14px; margin:6px 0 26px}
+  .pod{background:var(--surface); border:1px solid var(--border); border-radius:var(--r);
+    padding:16px 14px; text-align:center; width:170px}
+  .pod .medal{font-size:1.5rem}
+  .pod .pod-flag{font-size:2.4rem; line-height:1.2; margin:4px 0}
+  .pod .pod-team{font-weight:700; font-size:.95rem}
+  .pod .pod-pct{color:var(--accent); font-weight:800; font-size:1.15rem; margin-top:2px}
+  .pod-1{padding-top:26px; padding-bottom:26px; border-color:rgba(203,169,77,.5);
+    background:var(--surface2)}
+  .pod-1 .pod-flag{font-size:3rem}
+  .pod-1 .pod-pct{color:var(--gold)}
+
+  /* Stat cards */
+  .dash-cards{display:grid; grid-template-columns:repeat(auto-fit, minmax(170px,1fr));
+    gap:12px; margin-bottom:26px}
+  .scard{background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:14px}
+  .scard .scard-label{font-size:.62rem; text-transform:uppercase; letter-spacing:1px; color:var(--muted)}
+  .scard .scard-team{font-weight:700; font-size:1rem; margin:6px 0 2px}
+  .scard .scard-sub{font-size:.78rem; color:var(--muted)}
+  .scard .scard-sub b{color:var(--accent)}
+
+  /* Generic panels + bars */
+  .dash-insights{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:22px}
+  .panel{background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:16px}
+  .panel h3{margin:0 0 12px; font-size:.95rem}
+  .ibar-row{display:grid; grid-template-columns:130px 1fr 42px; align-items:center; gap:8px; margin:7px 0}
+  .ibar-row .ibar-label{font-size:.78rem; color:var(--text)}
+  .ibar{height:8px; background:var(--surface2); border-radius:6px; overflow:hidden}
+  .ibar span{display:block; height:100%; background:var(--accent); border-radius:6px}
+  .ibar-val{font-size:.76rem; font-weight:700; color:var(--muted); text-align:right;
+    font-variant-numeric:tabular-nums}
+
+  /* Hosts */
+  .hosts-row{display:flex; gap:12px; flex-wrap:wrap}
+  .host-card{display:flex; align-items:center; gap:10px; background:var(--surface2);
+    border:1px solid var(--border); border-radius:var(--r); padding:10px 14px; flex:1; min-width:150px}
+  .host-card .host-flag{font-size:1.6rem}
+  .host-card .host-name{font-weight:700; font-size:.9rem}
+  .host-card .host-sub{font-size:.74rem; color:var(--muted)}
+
+  /* Ranking table */
+  .fav-wrap{background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--r); overflow:hidden; margin-bottom:22px}
+  .fav-table{width:100%}
+  .fav-table th.num, .fav-table td.num{text-align:right; width:78px}
+  .fav-table td.muted{color:var(--muted); font-variant-numeric:tabular-nums; font-weight:600; font-size:.8rem}
+  .fav-table .fav-team{font-weight:600}
+  .fav-table tr.top3 .fav-team{color:var(--accent)}
+  .fav-th{width:210px}
+  .fav-prob{display:flex; align-items:center; gap:10px}
+  .fav-bar{flex:1; height:8px; background:var(--surface2); border-radius:6px; overflow:hidden}
+  .fav-bar span{display:block; height:100%; background:var(--accent); border-radius:6px}
+  .fav-val{font-variant-numeric:tabular-nums; font-weight:700; font-size:.82rem; min-width:44px; text-align:right}
+
+  @media (max-width:640px){ .dash-insights{grid-template-columns:1fr} }
+</style>
+
+<div class="dash">
+
+<section class="intro">
+  <h2>Tournament favourites</h2>
+  <p>An overall <strong>probability of winning the cup</strong> for every team, blending
+     <strong>recent form</strong> (4-yr form + Elo) and <strong>champion pedigree</strong> (history + host status).</p>
+</section>
+
+{# ---------- Podium (top 3) ---------- #}
+{% if ranking|length >= 3 %}
+<div class="podium">
+  <div class="pod pod-2">
+    <div class="medal">🥈</div>
+    <div class="pod-flag">{{ flag(ranking[1].team) }}</div>
+    <div class="pod-team">{{ ranking[1].team }}</div>
+    <div class="pod-pct">{{ ranking[1].final_pct }}%</div>
+  </div>
+  <div class="pod pod-1">
+    <div class="medal">🥇</div>
+    <div class="pod-flag">{{ flag(ranking[0].team) }}</div>
+    <div class="pod-team">{{ ranking[0].team }}</div>
+    <div class="pod-pct">{{ ranking[0].final_pct }}%</div>
+  </div>
+  <div class="pod pod-3">
+    <div class="medal">🥉</div>
+    <div class="pod-flag">{{ flag(ranking[2].team) }}</div>
+    <div class="pod-team">{{ ranking[2].team }}</div>
+    <div class="pod-pct">{{ ranking[2].final_pct }}%</div>
+  </div>
+</div>
+{% endif %}
+
+{# ---------- Stat cards ---------- #}
+<div class="dash-cards">
+  <div class="scard">
+    <div class="scard-label">Favourite</div>
+    <div class="scard-team">{{ flag(cards.favourite.team) }} {{ cards.favourite.team }}</div>
+    <div class="scard-sub"><b>{{ cards.favourite.value }}%</b> win probability</div>
+  </div>
+  <div class="scard">
+    <div class="scard-label">Most in-form</div>
+    <div class="scard-team">{{ flag(cards.in_form.team) }} {{ cards.in_form.team }}</div>
+    <div class="scard-sub"><b>{{ cards.in_form.value }}%</b> form score</div>
+  </div>
+  <div class="scard">
+    <div class="scard-label">Best pedigree</div>
+    <div class="scard-team">{{ flag(cards.pedigree.team) }} {{ cards.pedigree.team }}</div>
+    <div class="scard-sub"><b>{{ cards.pedigree.value }}%</b> champion DNA</div>
+  </div>
+  <div class="scard">
+    <div class="scard-label">Dark horse</div>
+    <div class="scard-team">{{ flag(cards.dark_horse.team) }} {{ cards.dark_horse.team }}</div>
+    <div class="scard-sub">form <b>{{ cards.dark_horse.form }}%</b> · pedigree {{ cards.dark_horse.pedigree }}%</div>
+  </div>
+</div>
+
+{# ---------- Insights: feature importances + confederations ---------- #}
+<div class="dash-insights">
+  <div class="panel">
+    <h3>What makes a champion?</h3>
+    {% set imax = importances[0].pct if importances else 100 %}
+    {% for f in importances %}
+    <div class="ibar-row">
+      <span class="ibar-label">{{ f.label }}</span>
+      <div class="ibar"><span style="width: {{ (f.pct / imax * 100)|round(1) }}%"></span></div>
+      <span class="ibar-val">{{ f.pct }}%</span>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="panel">
+    <h3>By confederation</h3>
+    {% set cmax = confeds[0].pct if confeds else 100 %}
+    {% for c in confeds %}
+    <div class="ibar-row">
+      <span class="ibar-label">{{ c.name }} <span style="color:var(--muted)">({{ c.count }})</span></span>
+      <div class="ibar"><span style="width: {{ (c.pct / cmax * 100)|round(1) }}%"></span></div>
+      <span class="ibar-val">{{ c.pct }}%</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{# ---------- Host nations ---------- #}
+{% if hosts %}
+<div class="panel">
+  <h3>Host nations 🏟️</h3>
+  <div class="hosts-row">
+    {% for h in hosts %}
+    <div class="host-card">
+      <span class="host-flag">{{ flag(h.team) }}</span>
+      <div>
+        <div class="host-name">{{ h.team }}</div>
+        <div class="host-sub">#{{ h.rank }} · {{ h.final_pct }}% to win</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+</br>
+
+{# ---------- Full ranking ---------- #}
+<div class="fav-wrap">
+  <table class="standings fav-table">
+    <thead>
+      <tr>
+        <th>#</th><th>Team</th>
+        <th class="num">Form</th><th class="num">Pedigree</th>
+        <th class="fav-th">Win probability</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set top = ranking[0].final_pct if ranking else 100 %}
+      {% for row in ranking %}
+      <tr class="{{ 'top3' if row.rank <= 3 else '' }}">
+        <td class="pos">{{ row.rank }}</td>
+        <td class="fav-team">{{ flag(row.team) }} {{ row.team }}</td>
+        <td class="num muted">{{ row.leaders_pct }}%</td>
+        <td class="num muted">{{ row.profiles_pct }}%</td>
+        <td class="fav-prob">
+          <div class="fav-bar"><span style="width: {{ (row.final_pct / top * 100)|round(1) }}%"></span></div>
+          <span class="fav-val">{{ row.final_pct }}%</span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+</div>
+{% endblock %}

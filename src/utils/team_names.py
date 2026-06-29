@@ -9,7 +9,7 @@ The names follow the main Kaggle results.csv conventions
 (the biggest dataset), since that's what the model trains on.
 
 Usage:
-    from src.team_names import normalize
+    from src.utils.team_names import normalize
 
     normalize("Korea Republic")   # → "South Korea"
 """

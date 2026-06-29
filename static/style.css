@@ -196,4 +196,8 @@ main{max-width:2000px; margin:0 auto; padding:24px 26px 8px}
 
 footer{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; max-width:1560px; margin:22px auto 0; padding:18px 26px; color:var(--muted); font-size:.76rem; border-top:1px solid var(--border)}
 footer .resim{color:var(--text); background:var(--surface2); border:1px solid var(--border2); text-decoration:none; font-weight:600; padding:8px 16px; border-radius:8px}
-footer .resim:hover{border-color:var(--accent); color:var(--accent)}
+footer .resim:hover{border-color:var(--border2); color:var(--text)}
+
+/* Flags rendered as <img> (flagcdn) — size follows surrounding font-size */
+.flag{height:1em; width:auto; vertical-align:-0.12em; border-radius:2px;
+  box-shadow:0 0 0 1px rgba(0,0,0,.25)}
